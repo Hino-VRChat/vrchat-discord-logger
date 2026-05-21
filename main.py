@@ -6,6 +6,7 @@ VRChat Discord Logger — main.py
 import json
 import os
 import sys
+import ctypes
 
 from events import (
     VRChatEvent, EnteringRoomEvent, JoiningWorldEvent,
@@ -15,6 +16,9 @@ from events import (
 from log_parser import parse_line
 from log_watcher import LogWatcher
 from discord_sender import DiscordSender
+
+
+HANDLER_ROUTINE = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.c_ulong)
 
 
 # ========== 設定読み込み ==========
@@ -146,6 +150,19 @@ def main():
         print("[Warning] Discord 疎通失敗。URLを確認してください")
 
     print("[Info] Ctrl+C で終了")
+
+    # ウィンドウの×ボタンでも cleanup が走るようにする（Windows）
+    def console_ctrl_handler(ctrl_type):
+        # CTRL_CLOSE_EVENT = 2 (×ボタン)
+        if ctrl_type == 2:
+            print("\n[Stop] ウィンドウが閉じられました。終了します")
+            sender.flush()
+            sender.send_shutdown()
+            return True
+        return False
+
+    _handler = HANDLER_ROUTINE(console_ctrl_handler)
+    ctypes.windll.kernel32.SetConsoleCtrlHandler(_handler, True)
 
     # メインループ
     pending_room = None  # EnteringRoomEvent を保留するバッファ
