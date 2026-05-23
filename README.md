@@ -13,12 +13,13 @@ VRChatのログファイルをリアルタイムに監視し、VRChatでの活�
 
 | イベント | Embed | 説明 |
 |---|---|---|
+| ユーザー認証完了 | ✅ VRChat started | VRChatにログインした時に送信 |
 | インスタンス移動 | 🌍 ワールド名 | Access / Region / Owner or Group リンク付き |
 | プレイヤーJoin | 📥 Player joined | ユーザー名 |
 | プレイヤーLeave | 📤 Player left | ユーザー名 |
 | メディアパッドの画像 | 🖼️ Image download | URL, プレビュー |
 | 動画再生 | 🎬 Video playback | URL |
-| VRChat終了 | ⏻ VRChat Shutdown |
+| VRChat終了 | ⏻ VRChat Shutdown | VRChatを終了したときに送信 |
 
 ## セットアップ
 
