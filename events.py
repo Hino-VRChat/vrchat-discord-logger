@@ -47,6 +47,12 @@ class PlayerLeftEvent(VRChatEvent):
 
 
 @dataclass
+class ImageDownloadEvent(VRChatEvent):
+    """画像ダウンロード"""
+    url: str
+
+
+@dataclass
 class VideoPlaybackEvent(VRChatEvent):
     """動画再生（URL解決 / タイトル取得）"""
     content: str  # URLまたはタイトル
@@ -59,6 +65,7 @@ class OnLeftRoomEvent(VRChatEvent):
 
 
 @dataclass
-class ImageDownloadEvent(VRChatEvent):
-    """画像ダウンロード"""
-    url: str
+class ShutdownEvent(VRChatEvent):
+    """VRChatが終了した"""
+    pass
+

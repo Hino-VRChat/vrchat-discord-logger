@@ -19,6 +19,7 @@ VRChatのログファイルをリアルタイムに監視し、VRChatでの活�
 | メディアパッドの画像 | 🖼️ Image download | URL, プレビュー |
 | 動画再生 | 🎬 Video playback | URL |
 | ルーム退出 | 🚪 Left room |
+| ログ終了 | ⏻ VRChat Shutdown |
 
 ## セットアップ
 

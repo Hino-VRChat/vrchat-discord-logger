@@ -9,7 +9,7 @@ import requests
 from events import (
     VRChatEvent, EnteringRoomEvent, JoiningWorldEvent,
     PlayerJoinedEvent, PlayerLeftEvent, VideoPlaybackEvent,
-    OnLeftRoomEvent, ImageDownloadEvent,
+    OnLeftRoomEvent, ImageDownloadEvent, ShutdownEvent,
 )
 
 
@@ -119,6 +119,13 @@ class DiscordSender:
             return {
                 "title": "🚪 Left room",
                 "color": self.colors.get("disconnect", 15548997),
+                "footer": {"text": ts},
+            }
+
+        elif isinstance(event, ShutdownEvent):
+            return {
+                "title": "⏻ VRChat Shutdown",
+                "color": self.colors.get("shutdown", 15548997),
                 "footer": {"text": ts},
             }
 

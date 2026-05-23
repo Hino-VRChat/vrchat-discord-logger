@@ -7,7 +7,7 @@ import re
 from events import (
     VRChatEvent, EnteringRoomEvent, JoiningWorldEvent,
     PlayerJoinedEvent, PlayerLeftEvent, VideoPlaybackEvent,
-    OnLeftRoomEvent, ImageDownloadEvent,
+    OnLeftRoomEvent, ImageDownloadEvent, ShutdownEvent,
 )
 
 # タイムスタンプ抽出（全行共通）
@@ -41,6 +41,9 @@ EVENT_PATTERNS: list[tuple[str, re.Pattern]] = [
     )),
     ("on_left_room", re.compile(
         r"\[Behaviour\] OnLeftRoom$"
+    )),
+    ("shutdown", re.compile(
+        r"UserInterface destroyed$"
     )),
 
 ]
@@ -118,6 +121,10 @@ def parse_line(line: str) -> VRChatEvent | None:
             )
         elif name == "on_left_room":
             return OnLeftRoomEvent(
+                timestamp=timestamp, raw_line=line,
+            )
+        elif name == "shutdown":
+            return ShutdownEvent(
                 timestamp=timestamp, raw_line=line,
             )
 
