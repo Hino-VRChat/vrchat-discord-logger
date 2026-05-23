@@ -80,18 +80,18 @@ class EventFilter:
                 return False
 
         # publicインスタンスでのフィルタ
-        if self.mute_in_public and self.current_access_type == "public":
+        if self.mute_in_public and self.current_access_type in ("public", "group-public"):
             if isinstance(event, (PlayerJoinedEvent, PlayerLeftEvent,
-                                  VideoPlaybackEvent, ImageDownloadEvent)):
+                                  ImageDownloadEvent, VideoPlaybackEvent)):
                 return False
 
         # イベント有効/無効チェック
         event_type_map = {
-            OnLeftRoomEvent: "on_left_room",
             PlayerJoinedEvent: "player_joined",
             PlayerLeftEvent: "player_left",
-            VideoPlaybackEvent: "video_playback",
             ImageDownloadEvent: "image_download",
+            VideoPlaybackEvent: "video_playback",
+            OnLeftRoomEvent: "on_left_room",
         }
         event_key = event_type_map.get(type(event))
         if event_key and not self.enabled_events.get(event_key, True):

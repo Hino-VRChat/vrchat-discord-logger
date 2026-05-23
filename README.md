@@ -13,12 +13,12 @@ VRChatのログファイルをリアルタイムに監視し、VRChatでの活�
 
 | イベント | Embed | 説明 |
 |---|---|---|
-| ワールド移動 | 🌍 ワールド名 | Access / Region / Owner or Group リンク付き |
-| プレイヤーJoin | 📥 Player joined |
-| プレイヤーLeave | 📤 Player left |
-| 動画再生 | 🎬 Video playback | URL or タイトル |
-| ルーム退出 | 🚪 Left room | VRChatオフラインの目印 |
-| メディアパッドの画像 | 🖼️ Image download | プレビュー付き |
+| インスタンス移動 | 🌍 ワールド名 | Access / Region / Owner or Group リンク付き |
+| プレイヤーJoin | 📥 Player joined | ユーザー名 |
+| プレイヤーLeave | 📤 Player left | ユーザー名 |
+| メディアパッドの画像 | 🖼️ Image download | URL, プレビュー |
+| 動画再生 | 🎬 Video playback | URL |
+| ルーム退出 | 🚪 Left room |
 
 ## セットアップ
 
