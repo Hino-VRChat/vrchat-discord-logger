@@ -32,20 +32,17 @@ EVENT_PATTERNS: list[tuple[str, re.Pattern]] = [
     ("player_left", re.compile(
         r"\[Behaviour\] OnPlayerLeft (.+?) \((usr_[0-9a-f\-]+)\)"
     )),
+    ("image_download", re.compile(
+        r"\[Image Download\] Attempting to load image from URL '(.+?)'"
+    )),
     # 動画再生: [Video Playback] のURL解決
     ("video_playback", re.compile(
         r"\[Video Playback\] Attempting to resolve URL '(.+?)'"
     )),
-    # 動画再生: [YamaStream] のタイトル取得（同じVideoPlaybackEventとして扱う）
-    ("video_playback", re.compile(
-        r"\[.*YamaStream.*\] Loaded video info from YouTube: (.+)"
-    )),
     ("on_left_room", re.compile(
         r"\[Behaviour\] OnLeftRoom$"
     )),
-    ("image_download", re.compile(
-        r"\[Image Download\] Attempting to load image from URL '(.+?)'"
-    )),
+
 ]
 
 
@@ -109,6 +106,11 @@ def parse_line(line: str) -> VRChatEvent | None:
                 timestamp=timestamp, raw_line=line,
                 player_name=m.group(1), player_id=m.group(2),
             )
+        elif name == "image_download":
+            return ImageDownloadEvent(
+                timestamp=timestamp, raw_line=line,
+                url=m.group(1),
+            )
         elif name == "video_playback":
             return VideoPlaybackEvent(
                 timestamp=timestamp, raw_line=line,
@@ -118,10 +120,6 @@ def parse_line(line: str) -> VRChatEvent | None:
             return OnLeftRoomEvent(
                 timestamp=timestamp, raw_line=line,
             )
-        elif name == "image_download":
-            return ImageDownloadEvent(
-                timestamp=timestamp, raw_line=line,
-                url=m.group(1),
-            )
+
 
     return None

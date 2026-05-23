@@ -96,6 +96,17 @@ class DiscordSender:
                 "footer": {"text": ts},
             }
 
+        elif isinstance(event, ImageDownloadEvent):
+            embed = {
+                "title": "🖼️ Image download",
+                "description": event.url,
+                "color": self.colors.get("image", 1752220),
+                "footer": {"text": ts},
+            }
+            # DiscordのEmbedにimageを設定するとプレビュー表示される
+            embed["image"] = {"url": event.url}
+            return embed
+
         elif isinstance(event, VideoPlaybackEvent):
             return {
                 "title": "🎬 Video playback",
@@ -110,17 +121,6 @@ class DiscordSender:
                 "color": self.colors.get("disconnect", 15548997),
                 "footer": {"text": ts},
             }
-
-        elif isinstance(event, ImageDownloadEvent):
-            embed = {
-                "title": "🖼️ Image download",
-                "description": event.url,
-                "color": self.colors.get("image", 1752220),
-                "footer": {"text": ts},
-            }
-            # DiscordのEmbedにimageを設定するとプレビュー表示される
-            embed["image"] = {"url": event.url}
-            return embed
 
         return None
 
