@@ -76,6 +76,7 @@ python main.py
         "mute_join_leave_in_public": true
     },
     "embed_colors": {
+        "user_authenticated": 14263515,
         "entering_room": 3447003,
         "player_joined": 3066993,
         "player_left": 15158332,

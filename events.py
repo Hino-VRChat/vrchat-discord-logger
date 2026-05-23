@@ -14,6 +14,20 @@ class VRChatEvent:
 
 
 @dataclass
+class VRDisabledEvent(VRChatEvent):
+    """VRモードがOFF"""
+    pass
+
+
+@dataclass
+class UserAuthenticatedEvent(VRChatEvent):
+    """ユーザー認証完了"""
+    user_name: str          # ユーザー名
+    user_id: str            # ユーザーID
+    vr_mode: bool = True    # False = デスクトップ / True = VR
+
+
+@dataclass
 class EnteringRoomEvent(VRChatEvent):
     """ワールド移動"""
     world_name: str

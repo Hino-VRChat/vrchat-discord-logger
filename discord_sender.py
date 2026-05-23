@@ -7,7 +7,8 @@ import time
 import threading
 import requests
 from events import (
-    VRChatEvent, EnteringRoomEvent, JoiningWorldEvent,
+    VRChatEvent, VRDisabledEvent, UserAuthenticatedEvent,
+    EnteringRoomEvent, JoiningWorldEvent,
     PlayerJoinedEvent, PlayerLeftEvent, VideoPlaybackEvent,
     OnLeftRoomEvent, ImageDownloadEvent, ShutdownEvent,
 )
@@ -15,6 +16,7 @@ from events import (
 
 # DESIGN.md 準拠のEmbed色
 DEFAULT_COLORS = {
+    "user_authenticated": 32768, # 濃い緑
     "entering_room": 3447003,    # 青
     "player_joined": 3066993,    # 緑
     "player_left":   15158332,   # 赤
@@ -45,7 +47,21 @@ class DiscordSender:
         """イベントからDiscord Embedを生成"""
         ts = event.timestamp.split(" ")[-1] if event.timestamp else ""
 
-        if isinstance(event, JoiningWorldEvent):
+        if isinstance(event, UserAuthenticatedEvent):
+            user_url = f"https://vrchat.com/home/user/{event.user_id}"
+            fields = [
+                {"name": "User", "value": f"[{event.user_name}]({user_url})", "inline": True},
+                {"name": "Mode", "value": "VR" if event.vr_mode else "Desktop", "inline": True},
+            ]
+
+            return {
+                "title": "✅ VRChat started",
+                "fields": fields,
+                "color": self.colors.get("user_authenticated", 32768),
+                "footer": {"text": ts},
+            }
+
+        elif isinstance(event, JoiningWorldEvent):
             access_display = {
                 "private": "🔐 Invite",
                 "invite+": "🔐 Invite+",

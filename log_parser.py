@@ -5,7 +5,8 @@ VRChatのoutput_logの行を正規表現でマッチし、イベントオブジ�
 
 import re
 from events import (
-    VRChatEvent, EnteringRoomEvent, JoiningWorldEvent,
+    VRChatEvent, VRDisabledEvent, UserAuthenticatedEvent,
+    EnteringRoomEvent, JoiningWorldEvent,
     PlayerJoinedEvent, PlayerLeftEvent, VideoPlaybackEvent,
     OnLeftRoomEvent, ImageDownloadEvent, ShutdownEvent,
 )
@@ -13,8 +14,14 @@ from events import (
 # タイムスタンプ抽出（全行共通）
 TIMESTAMP_RE = re.compile(r"^(\d{4}\.\d{2}\.\d{2} \d{2}:\d{2}:\d{2})")
 
-# イベントパターン（順序はマッチ優先度）
+# イベントパターン
 EVENT_PATTERNS: list[tuple[str, re.Pattern]] = [
+    ("vr_mode_disabled", re.compile(
+        r"VR Disabled$"
+    )),
+    ("user_authenticated", re.compile(
+        r"User Authenticated:\s(.+?)\s+\((usr_[0-9a-f\-]+)\)$"
+    )),
     ("entering_room", re.compile(
         r"\[Behaviour\] Entering Room: (.+)$"
     )),
@@ -65,7 +72,16 @@ def parse_line(line: str) -> VRChatEvent | None:
         if not m:
             continue
 
-        if name == "entering_room":
+        if name == "vr_mode_disabled":
+            return VRDisabledEvent(
+                timestamp=timestamp, raw_line=line,
+            )
+        elif name == "user_authenticated":
+            return UserAuthenticatedEvent(
+                timestamp=timestamp, raw_line=line,
+                user_name=m.group(1), user_id=m.group(2),
+            )
+        elif name == "entering_room":
             return EnteringRoomEvent(
                 timestamp=timestamp, raw_line=line,
                 world_name=m.group(1),

@@ -41,7 +41,7 @@ class LogWatcher:
         new_log = self.get_latest_log()
         if new_log and new_log != self._current_path:
             print(f"[Rotation] 新しいログに切り替え: {os.path.basename(new_log)}")
-            self._open_log(new_log, seek_end=True)
+            self._open_log(new_log, seek_end=False)
             return True
         return False
 

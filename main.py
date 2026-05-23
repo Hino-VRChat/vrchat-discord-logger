@@ -9,7 +9,8 @@ import sys
 import ctypes
 
 from events import (
-    VRChatEvent, EnteringRoomEvent, JoiningWorldEvent,
+    VRChatEvent, VRDisabledEvent, UserAuthenticatedEvent,
+    EnteringRoomEvent, JoiningWorldEvent,
     PlayerJoinedEvent, PlayerLeftEvent, ImageDownloadEvent,
     VideoPlaybackEvent, OnLeftRoomEvent, ShutdownEvent
 )
@@ -163,6 +164,8 @@ def main():
     ctypes.windll.kernel32.SetConsoleCtrlHandler(_handler, True)
 
     # メインループ
+    last_auth_ts = None  # 前回の認証イベントのタイムスタンプ
+    vr_mode = True  # VRモード状態を保留するバッファ
     pending_room = None  # EnteringRoomEvent を保留するバッファ
 
     def send_event(event):
@@ -186,6 +189,23 @@ def main():
                 if pending_room:
                     event.world_name = pending_room.world_name
                     pending_room = None
+                send_event(event)
+                continue
+
+            # VRDisabledEvent → VRモード状態を更新
+            if isinstance(event, VRDisabledEvent):
+                vr_mode = False
+                continue
+
+            # UserAuthenticatedEvent → ログイン完了
+            if isinstance(event, UserAuthenticatedEvent):
+                # 同じタイムスタンプで全く同じ内容が2行出てる → 重複なのでスキップ
+                if event.timestamp == last_auth_ts:
+                    continue
+                last_auth_ts = event.timestamp
+                if not vr_mode:
+                    event.vr_mode = False
+                    vr_mode = True
                 send_event(event)
                 continue
 
