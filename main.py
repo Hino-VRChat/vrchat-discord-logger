@@ -10,8 +10,8 @@ import ctypes
 
 from events import (
     VRChatEvent, EnteringRoomEvent, JoiningWorldEvent,
-    PlayerJoinedEvent, PlayerLeftEvent, VideoPlaybackEvent,
-    OnLeftRoomEvent, ImageDownloadEvent,
+    PlayerJoinedEvent, PlayerLeftEvent, ImageDownloadEvent,
+    VideoPlaybackEvent, OnLeftRoomEvent, ShutdownEvent
 )
 from log_parser import parse_line
 from log_watcher import LogWatcher
@@ -69,9 +69,9 @@ class EventFilter:
         # --- フィルタリング ---
 
         # OnLeftRoom → 退出中フラグON、通知する
-        if isinstance(event, OnLeftRoomEvent):
+        if isinstance(event, (OnLeftRoomEvent, ShutdownEvent)):
             self.is_leaving_world = True
-            return True
+            return True # インスタンス退出は常に通知
 
         # ワールド退出時の OnPlayerLeft 抑制
         if isinstance(event, PlayerLeftEvent):
@@ -91,7 +91,6 @@ class EventFilter:
             PlayerLeftEvent: "player_left",
             ImageDownloadEvent: "image_download",
             VideoPlaybackEvent: "video_playback",
-            OnLeftRoomEvent: "on_left_room",
         }
         event_key = event_type_map.get(type(event))
         if event_key and not self.enabled_events.get(event_key, True):

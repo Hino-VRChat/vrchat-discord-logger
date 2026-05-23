@@ -18,10 +18,10 @@ DEFAULT_COLORS = {
     "entering_room": 3447003,    # 青
     "player_joined": 3066993,    # 緑
     "player_left":   15158332,   # 赤
-    "disconnect":    15548997,   # 濃い赤
-    "self_event":    10181046,   # グレー
-    "video":         16750848,   # オレンジ
     "image":         1752220,    # ティール
+    "video":         16750848,   # オレンジ
+    "disconnect":    15548997,   # 濃い赤
+    "shutdown":      8411941,    # 紫
 }
 
 
@@ -125,7 +125,7 @@ class DiscordSender:
         elif isinstance(event, ShutdownEvent):
             return {
                 "title": "⏻ VRChat Shutdown",
-                "color": self.colors.get("shutdown", 15548997),
+                "color": self.colors.get("shutdown", 8411941),
                 "footer": {"text": ts},
             }
 
