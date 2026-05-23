@@ -7,7 +7,7 @@ VRChatのログファイルをリアルタイムに監視し、VRChatでの活�
 ## 特徴
 
 - **全インスタンスタイプ対応**: Public / Friends / Friends+ / Invite / Invite+ / Group / Group+ / Group Public
-- **設定可能**: イベントごとのON/OFF、Publicインスタンスでのミュート
+- **設定可能**: イベントごとのON/OFF、Public, Group Publicインスタンスでのミュート
 
 ## 通知されるイベント
 
@@ -85,7 +85,7 @@ python main.py
 | `poll_interval_sec` | ログファイルの読み取り間隔（秒） | 1.0 |
 | `rotation_check_interval_sec` | ログローテーション確認間隔（秒） | 30 |
 | `events.*` | 各イベントの通知ON/OFF | すべて true |
-| `filter.mute_join_leave_in_public` | Publicインスタンスで Join/Leave/Video/Image をミュート | true |
+| `filter.mute_join_leave_in_public` | Public/GroupPublic インスタンスで Join/Leave/Video/Image をミュート | true |
 
 ## License
 
