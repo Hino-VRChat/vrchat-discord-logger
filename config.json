@@ -10,7 +10,6 @@
         "video_playback": true
     },
     "filter": {
-        "show_self_join_leave": false,
         "mute_join_leave_in_public": true
     },
     "embed_colors": {

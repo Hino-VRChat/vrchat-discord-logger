@@ -68,15 +68,22 @@ python main.py
     "poll_interval_sec": 1.0,
     "rotation_check_interval_sec": 30,
     "events": {
-        "on_left_room": true,
         "player_joined": true,
         "player_left": true,
-        "video_playback": true,
-        "image_download": true
+        "image_download": true,
+        "video_playback": true
     },
     "filter": {
-        "show_self_join_leave": false,
         "mute_join_leave_in_public": true
+    },
+    "embed_colors": {
+        "entering_room": 3447003,
+        "player_joined": 3066993,
+        "player_left": 15158332,
+        "image": 1752220,
+        "video": 16750848,
+        "disconnect": 15548997,
+        "shutdown": 8411941
     }
 }
 ```

@@ -42,7 +42,6 @@ class EventFilter:
 
         # config からフィルタ設定を読む
         filter_cfg = config.get("filter", {})
-        self.show_self_join_leave = filter_cfg.get("show_self_join_leave", False)
         self.mute_in_public = filter_cfg.get("mute_join_leave_in_public", True)
 
         # イベント有効/無効
