@@ -20,8 +20,7 @@ DEFAULT_COLORS = {
     "player_left":   15158332,   # 赤
     "image":         1752220,    # ティール
     "video":         16750848,   # オレンジ
-    "disconnect":    15548997,   # 濃い赤
-    "shutdown":      8411941,    # 紫
+    "shutdown":      15548997,   # 濃い赤
 }
 
 
@@ -112,13 +111,6 @@ class DiscordSender:
                 "title": "🎬 Video playback",
                 "description": event.content,
                 "color": self.colors.get("video", 16750848),
-                "footer": {"text": ts},
-            }
-
-        elif isinstance(event, OnLeftRoomEvent):
-            return {
-                "title": "🚪 Left room",
-                "color": self.colors.get("disconnect", 15548997),
                 "footer": {"text": ts},
             }
 

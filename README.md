@@ -18,8 +18,7 @@ VRChatのログファイルをリアルタイムに監視し、VRChatでの活�
 | プレイヤーLeave | 📤 Player left | ユーザー名 |
 | メディアパッドの画像 | 🖼️ Image download | URL, プレビュー |
 | 動画再生 | 🎬 Video playback | URL |
-| ルーム退出 | 🚪 Left room |
-| ログ終了 | ⏻ VRChat Shutdown |
+| VRChat終了 | ⏻ VRChat Shutdown |
 
 ## セットアップ
 
@@ -82,8 +81,7 @@ python main.py
         "player_left": 15158332,
         "image": 1752220,
         "video": 16750848,
-        "disconnect": 15548997,
-        "shutdown": 8411941
+        "shutdown": 15548997
     }
 }
 ```
