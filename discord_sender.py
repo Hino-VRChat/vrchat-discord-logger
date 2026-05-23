@@ -133,7 +133,7 @@ class DiscordSender:
         elif isinstance(event, ShutdownEvent):
             return {
                 "title": "⏻ VRChat Shutdown",
-                "color": self.colors.get("shutdown", 8411941),
+                "color": self.colors.get("shutdown", 15548997),
                 "footer": {"text": ts},
             }
 
