@@ -167,6 +167,7 @@ def main():
     last_auth_ts = None  # 前回の認証イベントのタイムスタンプ
     vr_mode = True  # VRモード状態を保留するバッファ
     pending_room = None  # EnteringRoomEvent を保留するバッファ
+    last_video_url = ""  # 動画再生の重複抑制用（同一URLのリトライをスキップ）
 
     def send_event(event):
         if event_filter.should_send(event):
@@ -189,6 +190,7 @@ def main():
                 if pending_room:
                     event.world_name = pending_room.world_name
                     pending_room = None
+                last_video_url = ""  # ワールド移動で動画URLリセット
                 send_event(event)
                 continue
 
@@ -208,6 +210,12 @@ def main():
                     vr_mode = True
                 send_event(event)
                 continue
+
+            # VideoPlaybackEvent → 同一URLの重複を抑制
+            if isinstance(event, VideoPlaybackEvent):
+                if event.content == last_video_url:
+                    continue  # リトライ/フォールバックによる重複 → スキップ
+                last_video_url = event.content
 
             # その他のイベント → 保留があれば破棄（Joining が来なかった稀なケース）
             if pending_room:
