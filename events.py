@@ -83,3 +83,11 @@ class ShutdownEvent(VRChatEvent):
     """VRChatが終了した"""
     pass
 
+
+@dataclass
+class BoopEvent(VRChatEvent):
+    """Boop受信"""
+    sender_name: str   # 送信者のユーザー名
+    sender_id: str     # 送信者のユーザーID (usr_XXXX)
+    boop_id: str       # Boop種別 (emojiId: default_hand_wave 等)
+

@@ -19,6 +19,7 @@ VRChatのログファイルをリアルタイムに監視し、VRChatでの活�
 | プレイヤーLeave | 📤 Player left | ユーザー名 |
 | メディアパッドの画像 | 🖼️ Image download | URL, プレビュー |
 | 動画再生 | 🎬 Video playback | URL |
+| Boop | 👋 Booped me! | 送信者, Boop種別 |
 | VRChat終了 | ⏻ VRChat Shutdown | VRChatを終了したときに送信 |
 
 ## セットアップ
@@ -71,7 +72,8 @@ python main.py
         "player_joined": true,
         "player_left": true,
         "image_download": true,
-        "video_playback": true
+        "video_playback": true,
+        "boop": true
     },
     "filter": {
         "mute_join_leave_in_public": true
@@ -82,7 +84,8 @@ python main.py
         "player_joined": 3066993,
         "player_left": 15158332,
         "image": 1752220,
-        "video": 16750848,
+        "video": 1752220,
+        "boop": 16738740,
         "shutdown": 15548997
     }
 }

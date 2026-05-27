@@ -11,6 +11,7 @@ from events import (
     EnteringRoomEvent, JoiningWorldEvent,
     PlayerJoinedEvent, PlayerLeftEvent, VideoPlaybackEvent,
     OnLeftRoomEvent, ImageDownloadEvent, ShutdownEvent,
+    BoopEvent,
 )
 
 
@@ -21,7 +22,8 @@ DEFAULT_COLORS = {
     "player_joined": 3066993,    # 緑
     "player_left":   15158332,   # 赤
     "image":         1752220,    # ティール
-    "video":         16750848,   # オレンジ
+    "video":         1752220,    # ティール
+    "boop":          16738740,   # ピンク
     "shutdown":      15548997,   # 濃い赤
 }
 
@@ -127,6 +129,18 @@ class DiscordSender:
                 "title": "🎬 Video playback",
                 "description": event.content,
                 "color": self.colors.get("video", 16750848),
+                "footer": {"text": ts},
+            }
+
+        elif isinstance(event, BoopEvent):
+            sender_url = f"https://vrchat.com/home/user/{event.sender_id}"
+            return {
+                "title": "👋 Booped me!",
+                "fields": [
+                    {"name": "Sender", "value": f"[{event.sender_name}]({sender_url})", "inline": True},
+                    {"name": "Boop ID", "value": event.boop_id, "inline": True},
+                ],
+                "color": self.colors.get("boop", 16738740),
                 "footer": {"text": ts},
             }
 

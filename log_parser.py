@@ -9,6 +9,7 @@ from events import (
     EnteringRoomEvent, JoiningWorldEvent,
     PlayerJoinedEvent, PlayerLeftEvent, VideoPlaybackEvent,
     OnLeftRoomEvent, ImageDownloadEvent, ShutdownEvent,
+    BoopEvent,
 )
 
 # タイムスタンプ抽出（全行共通）
@@ -51,6 +52,9 @@ EVENT_PATTERNS: list[tuple[str, re.Pattern]] = [
     )),
     ("shutdown", re.compile(
         r"UserInterface destroyed$"
+    )),
+    ("boop", re.compile(
+        r"Received Notification: <Notification from username:(.+?), sender user id:(usr_[0-9a-f\-]+) .+? of type: boop,.+?emojiId=([0-9a-z_]+)"
     )),
 
 ]
@@ -142,6 +146,12 @@ def parse_line(line: str) -> VRChatEvent | None:
         elif name == "shutdown":
             return ShutdownEvent(
                 timestamp=timestamp, raw_line=line,
+            )
+        elif name == "boop":
+            return BoopEvent(
+                timestamp=timestamp, raw_line=line,
+                sender_name=m.group(1), sender_id=m.group(2),
+                boop_id=m.group(3),
             )
 
 

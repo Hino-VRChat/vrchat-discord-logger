@@ -7,7 +7,8 @@
         "player_joined": true,
         "player_left": true,
         "image_download": true,
-        "video_playback": true
+        "video_playback": true,
+        "boop": true
     },
     "filter": {
         "mute_join_leave_in_public": true
@@ -18,7 +19,8 @@
         "player_joined": 3066993,
         "player_left": 15158332,
         "image": 1752220,
-        "video": 16750848,
+        "video": 1752220,
+        "boop": 16738740,
         "shutdown": 15548997
     }
 }

@@ -12,7 +12,8 @@ from events import (
     VRChatEvent, VRDisabledEvent, UserAuthenticatedEvent,
     EnteringRoomEvent, JoiningWorldEvent,
     PlayerJoinedEvent, PlayerLeftEvent, ImageDownloadEvent,
-    VideoPlaybackEvent, OnLeftRoomEvent, ShutdownEvent
+    VideoPlaybackEvent, OnLeftRoomEvent, ShutdownEvent,
+    BoopEvent,
 )
 from log_parser import parse_line
 from log_watcher import LogWatcher
@@ -91,6 +92,7 @@ class EventFilter:
             PlayerLeftEvent: "player_left",
             ImageDownloadEvent: "image_download",
             VideoPlaybackEvent: "video_playback",
+            BoopEvent: "boop",
         }
         event_key = event_type_map.get(type(event))
         if event_key and not self.enabled_events.get(event_key, True):
