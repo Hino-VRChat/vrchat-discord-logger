@@ -27,7 +27,7 @@ EVENT_PATTERNS: list[tuple[str, re.Pattern]] = [
         r"\[Behaviour\] Entering Room: (.+)$"
     )),
     ("joining_world", re.compile(
-        r"\[Behaviour\] Joining (wrld_[0-9a-f\-]+):(\d{5})"
+        r"\[Behaviour\] Joining (wrld_[0-9a-f\-]+):([0-9a-f]+)"
         r"(?:~(hidden|friends|private)\((usr_[0-9a-f\-]+)\))?"
         r"(?:~canRequestInvite)?"
         r"(?:~group\((grp_[0-9a-f\-]+)\))?"
