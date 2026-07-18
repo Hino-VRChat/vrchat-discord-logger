@@ -55,10 +55,16 @@ pip install -r requirements.txt
 
 ```bash
 python main.py
+
+# config.json を別の場所に置いている場合
+python main.py --config C:\path\to\config.json
 ```
 
 起動すると Discord に `🟢 VRChat Logger 起動しました` と通知されます。
 `Ctrl+C` で停止（`🔴 VRChat Logger 停止しました` が通知されます）。
+
+VRChat より先に起動しても大丈夫です（ログファイルが現れるまで待機します）。
+二重に起動した場合は `[Error] すでに起動しています` と表示されて終了します。
 
 ## 設定項目
 

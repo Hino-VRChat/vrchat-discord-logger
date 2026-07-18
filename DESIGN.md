@@ -40,27 +40,27 @@ output_log_*.txt
 
 | イベント | ログパターン | Embed |
 |---|---|---|
-| `JoiningWorldEvent` | `[Behaviour] Joining wrld_...` | 🌍 ワールド名 + Access/Region/Owner |
+| `UserAuthenticatedEvent` | `User Authenticated: ...` | ✅ VRChat started（User + VR/Desktopモード） |
+| `VRDisabledEvent` | `VR Disabled` | ※送信しない（Desktopモード判定用の内部状態） |
+| `EnteringRoomEvent` | `[Behaviour] Entering Room: ...` | ※送信しない（world_name を JoiningWorldEvent に統合） |
+| `JoiningWorldEvent` | `[Behaviour] Joining wrld_...` | 🌍 ワールド名 + Access/Region/Owner/Group |
 | `PlayerJoinedEvent` | `[Behaviour] OnPlayerJoined ...` | 📥 Player joined |
 | `PlayerLeftEvent` | `[Behaviour] OnPlayerLeft ...` | 📤 Player left |
-| `VideoPlaybackEvent` | `[Video Playback] ...` / `[YamaStream] ...` | 🎬 Video playback |
-| `OnLeftRoomEvent` | `[Behaviour] OnLeftRoom` | 🚪 Left room |
-| `ImageDownloadEvent` | `[Image Download] ...` | 🖼️ Image download |
-| `EnteringRoomEvent` | `[Behaviour] Entering Room: ...` | ※送信しない（world_name を JoiningWorldEvent に統合） |
+| `ImageDownloadEvent` | `[Image Download] Attempting to load image from URL ...` | 🖼️ Image download（プレビュー付き） |
+| `VideoPlaybackEvent` | `[Video Playback] Attempting to resolve URL ...` | 🎬 Video playback |
+| `BoopEvent` | `Received Notification: ... of type: boop ...` | 👋 Booped me!（Sender + Boop種別） |
+| `OnLeftRoomEvent` | `[Behaviour] OnLeftRoom` | ※送信しない（ロード中の中間状態のため。退出中フラグ用） |
+| `ShutdownEvent` | `UserInterface destroyed` | ⏻ VRChat Shutdown |
 
 ### EnteringRoom → JoiningWorld 統合
 
 VRChatのログでは `Entering Room:` の直後に `Joining wrld_...` が出る。
 `EnteringRoomEvent` は保留（pending_room）し、直後の `JoiningWorldEvent` に `world_name` を統合して1つのEmbedとして送信する。
 
-### VideoPlaybackEvent の統合
+### 重複抑制（main.py）
 
-動画プレイヤーごとにログ表記が異なる：
-
-- `[Video Playback] Attempting to resolve URL '...'` → content = URL
-- `[UdonBehaviour-YamaStream] Loaded video info from YouTube: ...` → content = タイトル
-
-両方とも同一の `VideoPlaybackEvent(content=...)` として扱う。
+- **UserAuthenticated**: 同一タイムスタンプの2行目をスキップ（同内容が2行出るため）
+- **Image / Video**: 直前と同一URLをスキップ（リトライ/フォールバックによる重複対策）。ワールド移動でリセット
 
 ---
 
@@ -93,24 +93,25 @@ VRChatのログでは `Entering Room:` の直後に `Joining wrld_...` が出る
 
 | 状態 | 説明 |
 |---|---|
-| `current_access_type` | 現在のインスタンス種別 |
-| `is_leaving_world` | OnLeftRoom後にON、次のワールド移動でリセット |
+| `current_access_type` | 現在のインスタンス種別。OnLeftRoom / Shutdown でクリア |
+| `is_leaving_world` | OnLeftRoom / Shutdown 後にON、次の JoiningWorld でリセット |
 
 ### フィルタルール
 
 ```
-[通常] ──(OnLeftRoom)──► [退出中: Leave全無視]
-                                │
-                   (Entering Room / Joining wrld)
-                                │
-                                ▼
-                             [通常]
+[通常] ──(OnLeftRoom / Shutdown)──► [退出中: Leave全無視]
+                                          │
+                                   (Joining wrld)
+                                          │
+                                          ▼
+                                       [通常]
 ```
 
-- **EnteringRoom / JoiningWorld**: 常に通知（状態リセット）
-- **OnLeftRoom**: 退出フラグON + 通知
+- **JoiningWorld**: 常に通知（access_type を記憶、退出中フラグをリセット）
+- **OnLeftRoom**: 退出中フラグON + access_type クリア + 通知しない
+- **Shutdown**: 退出中フラグON + access_type クリア + ⏻ Embed を通知
 - **PlayerLeft + 退出中フラグON**: 抑制（自分の退出時に全員分のLeaveが出るのを防ぐ）
-- **public インスタンス** (`mute_join_leave_in_public: true`): Join/Leave/Video/Image を抑制
+- **public / group-public インスタンス** (`mute_join_leave_in_public: true`): Join/Leave/Video/Image を抑制
 - **イベント個別**: `config.json` の `events` で true/false 切替
 
 ---
@@ -133,12 +134,21 @@ Join/Leave が短時間に連続する場合、5秒のウィンドウでまと�
 
 ---
 
+## 多重起動ガード
+
+起動時に名前付きMutex（`VRChatDiscordLogger`）を `CreateMutexW` で作成し、`ERROR_ALREADY_EXISTS`（183）が返ったら既に起動中と判定して終了する。
+
+- 検出時は返ってきた既存Mutexへのハンドルを `CloseHandle` してから終了（参照を残さない）
+- 保持側のハンドルはプロセス終了時にOSが自動で閉じるため、クラッシュしてもロックは残らない
+- `GetLastError` は `use_last_error=True` + `ctypes.get_last_error()` で取得する（`ctypes.windll` 経由だと他のAPI呼び出しで上書きされる可能性がある）
+
 ## ログファイル監視 (LogWatcher)
 
 - **方式**: ジェネレーター (`yield`) で新しい行を返す
 - **ポーリング間隔**: `poll_interval_sec` (デフォルト 1秒)
-- **ログローテーション**: `rotation_check_interval_sec` 間隔で最新の `output_log_*.txt` を確認し、変わっていたら切り替え
+- **ログローテーション**: `rotation_check_interval_sec` 間隔で最新の `output_log_*.txt` を確認し、変わっていたら切り替え（切替後は先頭から読む）
 - **起動時**: 最新ログの末尾にシーク（過去ログは読まない）
+- **ログ未発見時**: ログファイルが現れるまで待機（VRChatより先に起動してOK）。待機後に現れたログは先頭から読む
 
 ---
 
@@ -151,23 +161,27 @@ Join/Leave が短時間に連続する場合、5秒のウィンドウでまと�
     "poll_interval_sec": 1.0,
     "rotation_check_interval_sec": 30,
     "events": {
-        "on_left_room": true,
         "player_joined": true,
         "player_left": true,
+        "image_download": true,
         "video_playback": true,
-        "image_download": true
+        "boop": true
     },
     "filter": {
-        "show_self_join_leave": false,
         "mute_join_leave_in_public": true
     },
     "embed_colors": {
+        "user_authenticated": 32768,
         "entering_room": 3447003,
         "player_joined": 3066993,
         "player_left": 15158332,
-        "disconnect": 15548997,
-        "self_event": 10181046,
-        "video": 16750848
+        "image": 1752220,
+        "video": 1752220,
+        "boop": 16738740,
+        "shutdown": 15548997
     }
 }
 ```
+
+- `vrchat_log_dir` が空欄なら `%APPDATA%` から `LocalLow\VRChat\VRChat` を自動検出
+- `--config <path>`（`-c`）でスクリプト外の config.json を指定できる。省略時は `main.py` と同じディレクトリの `config.json` を読む
