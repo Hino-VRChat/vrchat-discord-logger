@@ -55,11 +55,6 @@ class EventFilter:
 
         # --- 状態更新（常に行う） ---
 
-        # ワールド移動 → 退出中フラグをリセット、インスタンス種別をクリア
-        if isinstance(event, EnteringRoomEvent):
-            self.is_leaving_world = False
-            return True  # ワールド移動は常に通知
-
         # インスタンスJoin → 種別を記憶、退出中フラグをリセット
         if isinstance(event, JoiningWorldEvent):
             self.current_access_type = event.access_type
@@ -69,10 +64,18 @@ class EventFilter:
 
         # --- フィルタリング ---
 
-        # OnLeftRoom → 退出中フラグON、通知する
-        if isinstance(event, (OnLeftRoomEvent, ShutdownEvent)):
+        # OnLeftRoom → 退出中フラグON、インスタンス種別クリア
+        # ロード中の中間状態のため通知しない
+        if isinstance(event, OnLeftRoomEvent):
             self.is_leaving_world = True
-            return True # インスタンス退出は常に通知
+            self.current_access_type = ""
+            return False
+
+        # Shutdown → 退出中フラグON、インスタンス種別クリア、終了通知を送る
+        if isinstance(event, ShutdownEvent):
+            self.is_leaving_world = True
+            self.current_access_type = ""
+            return True
 
         # ワールド退出時の OnPlayerLeft 抑制
         if isinstance(event, PlayerLeftEvent):
