@@ -47,14 +47,19 @@ class LogWatcher:
 
     def watch(self):
         """メイン監視ジェネレーター。新しい行を yield で返す。"""
-        # 最新ログ検出
+        # 最新ログ検出（見つからなければ現れるまで待機）
         log_path = self.get_latest_log()
+        seek_end = True
         if not log_path:
-            print(f"[Error] ログファイルが見つかりません: {self.log_dir}")
-            print("[Info]  VRChatが起動していることを確認してください")
-            return
+            print(f"[Wait] ログファイルが見つかりません: {self.log_dir}")
+            print("[Wait] VRChatの起動を待っています...")
+            while not log_path:
+                time.sleep(self.poll_interval)
+                log_path = self.get_latest_log()
+            # 待機中に現れたログは新規作成なので先頭から読む（起動時イベントを拾う）
+            seek_end = False
 
-        self._open_log(log_path, seek_end=True)
+        self._open_log(log_path, seek_end=seek_end)
         print(f"[Start] 監視開始: {os.path.basename(log_path)}")
 
         try:

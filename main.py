@@ -3,6 +3,7 @@ VRChat Discord Logger — main.py
 エントリーポイント。フィルタリングロジック（状態管理）を担当する。
 """
 
+import argparse
 import json
 import os
 import sys
@@ -107,8 +108,20 @@ class EventFilter:
 # ========== メイン ==========
 
 def main():
-    # 設定読み込み
-    config_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "config.json")
+    # 多重起動ガード（ハンドルはプロセス終了まで保持し続ける）
+    mutex_handle = acquire_single_instance_mutex()
+    if mutex_handle is None:
+        print("[Error] すでに起動しています。多重起動はできません")
+        sys.exit(1)
+
+    # 設定読み込み（--config で別の場所の config.json を指定できる）
+    parser = argparse.ArgumentParser(description="VRChat Discord Logger")
+    parser.add_argument("-c", "--config", default=None,
+                        help="config.json のパス（省略時はスクリプトと同じディレクトリ）")
+    args = parser.parse_args()
+
+    config_path = args.config or os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), "config.json")
     if not os.path.exists(config_path):
         print(f"[Error] 設定ファイルが見つかりません: {config_path}")
         sys.exit(1)
