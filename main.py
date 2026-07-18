@@ -23,6 +23,29 @@ from discord_sender import DiscordSender
 
 HANDLER_ROUTINE = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.c_ulong)
 
+# 多重起動ガード用
+MUTEX_NAME = "VRChatDiscordLogger"
+ERROR_ALREADY_EXISTS = 183
+
+# use_last_error=True で呼び出し直後のエラーコードをctypesが保存してくれる
+# （ctypes.windll経由のGetLastError()は他のAPI呼び出しで上書きされる可能性がある）
+_kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+
+
+# ========== 多重起動ガード ==========
+
+def acquire_single_instance_mutex() -> int | None:
+    """名前付きMutexを作成して多重起動を検出する。
+    先客がいれば None、いなければMutexハンドルを返す。
+    ハンドルはプロセス終了までCloseHandleしないこと（ガードが外れる）。"""
+    handle = _kernel32.CreateMutexW(None, False, MUTEX_NAME)
+    if ctypes.get_last_error() == ERROR_ALREADY_EXISTS:
+        # 既存Mutexへのハンドルが返ってきているので、閉じて参照を残さない
+        if handle:
+            _kernel32.CloseHandle(handle)
+        return None
+    return handle
+
 
 # ========== 設定読み込み ==========
 
