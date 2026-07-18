@@ -128,7 +128,7 @@ class DiscordSender:
             return {
                 "title": "🎬 Video playback",
                 "description": event.content,
-                "color": self.colors.get("video", 16750848),
+                "color": self.colors.get("video", 1752220),
                 "footer": {"text": ts},
             }
 
